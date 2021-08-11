@@ -37,7 +37,7 @@ var config = {
   'font_size': 1.0,          // 字号（比例）
   'r2ltime': 8,              // 右到左弹幕持续时间（秒）
   'fixtime': 4,              // 固定弹幕持续时间（秒）
-  'opacity': 0.8,            // 不透明度（比例）
+  'opacity': 0.7,            // 不透明度（比例）
   'space': 0,                // 弹幕间隔的最小水平距离（像素）
   'max_delay': 6,            // 最多允许延迟几秒出现弹幕
   'bottom': 50,              // 底端给字幕保留的空间（像素）
@@ -93,6 +93,13 @@ var startDownload = function (data, filename) {
   setTimeout(function () { saveas.parentNode.removeChild(saveas); }, 1000)
   document.addEventListener('unload', function () { window.URL.revokeObjectURL(url); });
 };
+
+function c(fontname, text, fontsize) {
+  var canvas = document.createElement("canvas");
+  var context = canvas.getContext("2d");
+  context.font = 'bold ' + fontsize + 'px ' + fontname;
+  return Math.ceil(context.measureText(text).width + config.space);
+}
 
 // 计算文字宽度
 var calcWidth = (function () {
@@ -397,72 +404,9 @@ var normalDanmaku = (function (wc, hc, b, u, maxr) {
   };
 }(config.playResX, config.playResY, config.bottom, config.r2ltime, config.max_delay));
 
-// 顶部、底部弹幕
-var sideDanmaku = (function (hc, b, u, maxr) {
-  return function () {
-    var used = [
-      { 'p': -Infinity, 'm': 0, 'td': Infinity, 'b': false },
-      { 'p': hc, 'm': Infinity, 'td': Infinity, 'b': false },
-      { 'p': hc - b, 'm': hc, 'td': Infinity, 'b': true },
-    ];
-    // 查找可用的位置
-    var fr = function (p, m, t0s, b) {
-      var tas = t0s;
-      used.forEach(function (j) {
-        if (j.p >= m) return;
-        if (j.m <= p) return;
-        if (j.b && b) return;
-        tas = Math.max(tas, j.td);
-      });
-      return { 'r': tas - t0s, 'p': p, 'm': m };
-    };
-    // 顶部
-    var top = function (hv, t0s, b) {
-      var suggestion = [];
-      used.forEach(function (i) {
-        if (i.m > hc) return;
-        suggestion.push(fr(i.m, i.m + hv, t0s, b));
-      });
-      return suggestion;
-    };
-    // 底部
-    var bottom = function (hv, t0s, b) {
-      var suggestion = [];
-      used.forEach(function (i) {
-        if (i.p < 0) return;
-        suggestion.push(fr(i.p - hv, i.p, t0s, b));
-      });
-      return suggestion;
-    };
-    var use = function (p, m, td) {
-      used.push({ 'p': p, 'm': m, 'td': td, 'b': false });
-    };
-    var syn = function (t0s) {
-      used = used.filter(function (i) { return i.td > t0s; });
-    };
-    // 挑选最好的方案：延迟小的优先，位置不重要
-    var score = function (i, is_top) {
-      if (i.r > maxr) return -Infinity;
-      var f = function (p) { return is_top ? p : (hc - p); };
-      return 1 - (i.r / maxr * (31/32) + f(i.p) / hc * (1/32));
-    };
-    return function (t0s, hv, is_top, b) {
-      syn(t0s);
-      var al = (is_top ? top : bottom)(hv, t0s, b);
-      if (!al.length) return null;
-      var scored = al.map(function (i) { return [score(i, is_top), i]; });
-      var best = scored.reduce(function (x, y) {
-        return x[0] > y[0] ? x : y;
-      })[1];
-      use(best.p, best.m, best.r + t0s + u)
-      return { 'top': best.p, 'time': best.r + t0s };
-    };
-  };
-}(config.playResY, config.bottom, config.fixtime, config.max_delay));
-
 // 为每条弹幕安置位置
 var setPosition = function (danmaku) {
-  var normal = normalDanmaku(), side = sideDanmaku();
+  var normal = normalDanmaku();
   // console.log(danmaku[0])
   return danmaku
     .sort(function (x, y) { return x.time - y.time; })
@@ -486,18 +430,6 @@ var setPosition = function (danmaku) {
           line.dtime = config.r2ltime + line.stime;
           return line;
         }());
-        case 'TOP': case 'BOTTOM': return (function (isTop) {
-          var pos = side(line.time, font_size, isTop, line.bottom);
-          if (!pos) return null;
-          line.type = 'Fix';
-          line.stime = pos.time;
-          line.posd = line.poss = {
-            'x': Math.round(config.playResX / 2),
-            'y': pos.top + font_size,
-          };
-          line.dtime = config.fixtime + line.stime;
-          return line;
-        }(line.mode === 'TOP'));
         default: return null;
       };
     })
@@ -534,10 +466,20 @@ var parseJSON = function(content) {
       return el.time_in_seconds >= 0 && el.message_type ==='text_message'
     }
   )
-  return data.map(function(line) {
+  let new_data = []
+  for (let index = 0; index < data.length; index++) {
+    let el = data[index]
+    el.new_message = el.message.replace(/[\u{1f300}-\u{1f5ff}\u{1f900}-\u{1f9ff}\u{1f600}-\u{1f64f}\u{1f680}-\u{1f6ff}\u{2600}-\u{26ff}\u{2700}-\u{27bf}\u{1f1e6}-\u{1f1ff}\u{1f191}-\u{1f251}\u{1f004}\u{1f0cf}\u{1f170}-\u{1f171}\u{1f17e}-\u{1f17f}\u{1f18e}\u{3030}\u{2b50}\u{2b55}\u{2934}-\u{2935}\u{2b05}-\u{2b07}\u{2b1b}-\u{2b1c}\u{3297}\u{3299}\u{303d}\u{00a9}\u{00ae}\u{2122}\u{23f3}\u{24c2}\u{23e9}-\u{23ef}\u{25b6}\u{23f8}-\u{23fa}\u{200d}]*/ug, '')
+    el.new_message = el.new_message.replace(/^\s+$/, '')
+    el.new_message = el.new_message.replace(/:_(.*?):/g, "[$1]")
+    if (c("PingFang SC", el.new_message, 25) > 0) {
+      new_data.push(el)
+    }
+  }
+  return new_data.map(function(el) {
     return {
-      'text': line.message,
-      'time': line.time_in_seconds,
+      'text': el.new_message,
+      'time': el.time_in_seconds,
       'mode': 'R2L',
       'size': 25,
       'color': "FFFFFF",

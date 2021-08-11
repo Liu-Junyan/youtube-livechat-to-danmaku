@@ -1,6 +1,6 @@
 var gotFile = function (name, content) {
   var danmaku = parseFile(content);
-  console.log(danmaku[0])
+  // console.log(danmaku)
   var ass = generateASS(setPosition(danmaku), {
     'title': document.title,
     'ori': name,
@@ -9,7 +9,6 @@ var gotFile = function (name, content) {
 };
 
 var parseFile = function (content) {
-  console.log(parseJSON(content))
   return parseJSON(content)
 }
 
@@ -19,8 +18,7 @@ window.addEventListener('load', function () {
     var file = upload.files[0];
     var name = file.name;
     var reader = new FileReader();
-    if (file.size > (1 << 24)) error();
-    else reader.addEventListener('load', function () {
+    reader.addEventListener('load', function () {
       gotFile(name, reader.result);
     });
     reader.readAsText(file);
