@@ -1,0 +1,111 @@
+html,
+body {
+  font-family: 'PingFang SC', 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 24px;
+  margin: 0;
+  padding: 0;
+}
+body {
+  background: #f0f0f0;
+  padding-bottom: 40px;
+}
+#main-body {
+  width: 960px;
+  margin: 0 auto;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+  font-size: 100%;
+  font-weight: normal;
+}
+a,
+a:hover,
+a:active,
+a:visited {
+  text-decoration: none;
+  color: rgb(245, 0, 4);
+  outline: none;
+}
+a img {
+  border: none;
+}
+h1 {
+  color: black;
+  font-size: 40px;
+  line-height: 60px;
+  margin: 40px 0 20px 0;
+  padding: 0;
+  font-weight: bold;
+}
+header {
+  display: block;
+  height: 160px;
+}
+header li {
+  list-style: none;
+}
+#intro {
+  border: 2px solid rgb(245, 0, 4);
+  float: left;
+  height: 80px;
+  line-height: 40px;
+  font-size: 20px;
+  padding: 18px;
+  background: #f8f8f8;
+  border-radius: 8px;
+  margin-left: 30px;
+  color: #333;
+}
+#intro strong {
+  color: #000;
+  font-weight: normal;
+}
+#side-buttons {
+  width: 400px;
+  height: 160px;
+  float: right;
+  padding: 0;
+  text-align: right;
+  margin-right: 30px;
+}
+#convert {
+  background: rgb(251, 0, 6);
+  color: #fff;
+  font-size: 32px;
+  line-height: 50px;
+  padding: 10px 50px;
+  width: 300px;
+  clear: both;
+  display: block;
+  float: right;
+  text-align: center;
+}
+#convert:hover {
+  filter: brightness(0.85);
+  cursor: pointer;
+}
+h3 {
+  font-size: 24px;
+  font-weight: bold;
+  border-bottom: 2px #ccc solid;
+  padding: 10px 20px;
+  margin: 20px 0 10px;
+}
+.in {
+  padding: 5px 2em;
+  border: 4px;
+}
+.p {
+  margin: 0.5em 0;
+}
+ul {
+  margin: 0;
+}
