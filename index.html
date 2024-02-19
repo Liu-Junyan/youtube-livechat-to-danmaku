@@ -26,6 +26,32 @@
       </div>
     </header>
 
+    <h3>选项</h3>
+    <div class="option-wrapper">
+      <label class="container">转换Emotes
+        <input type="checkbox" checked="checked" id="transoform_emotes">
+        <span class="checkmark"></span>
+      </label>
+      <div>YouTube live chat有三种emotes：频道专属、YouTube原创、标准Emoji；前两种无法在本地渲染。但即使是第三种，YouTube也以 :custom_name: 的形式表示。勾选此项将把它们转换为Unicode，以在本地渲染。
+      </div>
+    </div>
+
+    <div class="option-wrapper">
+    <label class="container">移除未知Emotes
+      <input type="checkbox" checked="checked" id="truncate_emotes">
+      <span class="checkmark"></span>
+    </label>
+    <div>勾选此项将移除所有 :custom_name: 形式的emotes。</div>
+    </div>
+
+    <div class="option-wrapper">
+    <label class="container">使用Noto Emoji
+      <input type="checkbox" id="use_noto_emoji">
+      <span class="checkmark"></span>
+    </label>
+    <div>Noto Emoji：一种黑白Emoji字体。非Windows平台一般用libass渲染ASS字幕，但该库无法渲染彩色Emoji。所以，如需在非Windows平台渲染Emoji需勾选此项并在本地<a href="https://fonts.google.com/noto/specimen/Noto+Emoji" target="_blank">安装字体</a>。</div>
+    </div>
+
     <h3>帮助</h3>
     <div class="in">
       <div class="p"><a href="https://github.com/Liu-Junyan/youtube-livechat-to-danmaku/blob/main/README.md">README.md</a></div>

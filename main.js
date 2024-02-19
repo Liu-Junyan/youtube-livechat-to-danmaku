@@ -47,6 +47,12 @@ var config = {
 
 var debug = config.debug ? console.log.bind(console) : function () { };
 
+var do_transform_emotes = true
+
+var do_truncate_emotes = true
+
+var do_use_noto_emoji = false
+
 // 将字典中的值填入字符串
 var fillStr = function (str) {
   var dict = Array.apply(Array, arguments);
@@ -120,7 +126,7 @@ var calcWidth = (function () {
     d.setAttribute('style', [
       'all: unset', 'top: -10000px', 'left: -10000px',
       'width: auto', 'height: auto', 'position: absolute',
-    '',].join(' !important; '));
+      '',].join(' !important; '));
     var ld = function () { document.body.parentNode.appendChild(d); }
     if (!document.body) document.addEventListener('DOMContentLoaded', ld);
     else ld();
@@ -134,7 +140,7 @@ var calcWidth = (function () {
   // 检查使用哪个测量文字宽度的方法
   if (config.use_canvas === null) {
     if (navigator.platform.match(/linux/i) &&
-    !navigator.userAgent.match(/chrome/i)) config.use_canvas = false;
+      !navigator.userAgent.match(/chrome/i)) config.use_canvas = false;
   }
   debug('use canvas: %o', config.use_canvas !== false);
   if (config.use_canvas === false) return calcWidthDiv();
@@ -189,6 +195,10 @@ var initFont = (function () {
 }());
 
 var generateASS = function (danmaku, info) {
+  if (do_use_noto_emoji) {
+    config.font = "Noto Emoji"
+  }
+
   var assHeader = fillStr(funStr(function () {/*! ASS弹幕文件文件头
 [Script Info]
 Title: {{title}}
@@ -207,7 +217,7 @@ Style: R2L,{{font}},25,&H{{alpha}}FFFFFF,&H{{alpha}}FFFFFF,&H{{alpha}}000000,&H{
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
-  */}), config, info, {'alpha': hexAlpha(config.opacity) });
+  */}), config, info, { 'alpha': hexAlpha(config.opacity) });
   // 补齐数字开头的0
   var paddingNum = function (num, len) {
     num = '' + num;
@@ -277,10 +287,13 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
       + '{' + format[line.type](line) + '}'
       + escapeAssText(line.text);
   };
+
+
+
   return assHeader +
     danmaku.map(convert2Ass)
-    .filter(function (x) { return x; })
-    .join('\n');
+      .filter(function (x) { return x; })
+      .join('\n');
 };
 
 /*
@@ -437,24 +450,39 @@ var setPosition = function (danmaku) {
     .sort(function (x, y) { return x.stime - y.stime; });
 };
 
-var parseJSON = function(content) {
+var parseJSON = function (content) {
   var data = JSON.parse(content)
   data = data.filter(
-    function(el) {
-      return el.time_in_seconds >= 0 && el.message_type ==='text_message'
+    function (el) {
+      return el.time_in_seconds >= 0 && el.message_type === 'text_message'
     }
   )
+
   let new_data = []
   for (let index = 0; index < data.length; index++) {
     let el = data[index]
+    el.new_message = el.message
     // el.new_message = el.message.replace(/[\u{1f300}-\u{1f5ff}\u{1f900}-\u{1f9ff}\u{1f600}-\u{1f64f}\u{1f680}-\u{1f6ff}\u{2600}-\u{26ff}\u{2700}-\u{27bf}\u{1f1e6}-\u{1f1ff}\u{1f191}-\u{1f251}\u{1f004}\u{1f0cf}\u{1f170}-\u{1f171}\u{1f17e}-\u{1f17f}\u{1f18e}\u{3030}\u{2b50}\u{2b55}\u{2934}-\u{2935}\u{2b05}-\u{2b07}\u{2b1b}-\u{2b1c}\u{3297}\u{3299}\u{303d}\u{00a9}\u{00ae}\u{2122}\u{23f3}\u{24c2}\u{23e9}-\u{23ef}\u{25b6}\u{23f8}-\u{23fa}\u{200d}]*/ug, '')
     el.new_message = el.new_message.replace(/^\s+$/, '')
-    el.new_message = el.new_message.replace(/:_(.*?):/g, "[$1]")
-    if (c("PingFang SC", el.new_message, 25) > 0) {
+    if (do_transform_emotes) {
+      if (el.emotes !== undefined) {
+        for (const emote of el.emotes) {
+          if (emote['is_custom_emoji'] === false) {
+            el.new_message = el.new_message.replaceAll(emote['name'], emote['id'])
+          }
+        }
+      }
+    }
+
+    if (do_truncate_emotes) {
+      el.new_message = el.new_message.replace(/:(.*?):/g, "")
+    }
+    // el.new_message = el.new_message.replace(/:_(.*?):/g, "[$1]")
+    if (c(config.font, el.new_message, 25) > 0) {
       new_data.push(el)
     }
   }
-  return new_data.map(function(el) {
+  return new_data.map(function (el) {
     return {
       'text': el.new_message,
       'time': el.time_in_seconds,
@@ -467,8 +495,7 @@ var parseJSON = function(content) {
 }
 
 
-
- // 初始化
+// 初始化
 var init = function () {
   initFont();
 };
