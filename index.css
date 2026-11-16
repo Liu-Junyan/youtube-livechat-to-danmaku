@@ -114,6 +114,23 @@ span.note {
   font-size: 14px;
 }
 
+.usage-steps li {
+  margin-bottom: 20px;
+}
+
+.in pre {
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.in code {
+  font-family: monospace;
+  font-size: 14px;
+}
+
 div.option-wrapper {
   border: #000 1px dashed;
   padding: 10px;
