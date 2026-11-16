@@ -54,28 +54,10 @@
 
     <h3>帮助</h3>
     <div class="in">
-      <p>先用命令行工具下载聊天记录，再在本页转换为 ASS 弹幕。请使用包含 YouTube 身份验证修复的 <a href="https://github.com/Indigo128/chat-downloader">Indigo128/chat-downloader 分支</a>；本转换器已使用该分支下载的 JSON 验证。</p>
-      <ol class="usage-steps">
-        <li>
-          <strong>安装下载工具。</strong>安装 Python、pip 和 Git 后，在你的 Python 环境中运行：
-          <pre><code>python -m pip install --upgrade --force-reinstall "git+https://github.com/Indigo128/chat-downloader.git"</code></pre>
-          <p>此命令会替换同一环境中已安装的版本。仅运行 <code>pip install chat-downloader</code> 会安装原版，而非上述分支；分支的命令名仍为 <code>chat_downloader</code>。</p>
-        </li>
-        <li>
-          <strong>下载聊天 JSON。</strong>选择已结束且可查看聊天重放的 YouTube 直播，将下面的 <code>VIDEO_ID</code> 替换为视频 ID：
-          <pre><code>chat_downloader "https://www.youtube.com/watch?v=VIDEO_ID" --output chat.json</code></pre>
-          <p>等待下载完成，文件会保存在终端当前目录。请保留 <code>.json</code> 扩展名，不要使用 CSV 或复制终端输出代替。</p>
-          <p>若 YouTube 要求身份验证，将已登录 YouTube 的浏览器 Cookies 导出为 Netscape cookies.txt 格式，再运行：</p>
-          <pre><code>chat_downloader "https://www.youtube.com/watch?v=VIDEO_ID" --cookies cookies.txt --output chat.json</code></pre>
-          <p>Cookies 包含登录信息，请勿分享，也不要在本页选择 Cookies 文件。下载失败时，请确认视频有聊天重放，并检查当前命令使用的是上述分支。</p>
-          <p>只想快速测试？在下载命令末尾加上 <code>--start_time 0 --end_time 300 --max_messages 500</code>，即可下载前 5 分钟内最多 500 条消息；时间戳仍对应原视频。</p>
-        </li>
-        <li>
-          <strong>转换并播放。</strong>先设置上方的表情选项，再点击“上传JSON文件”并选择 <code>chat.json</code>。转换在浏览器中完成，并自动下载 <code>chat.ass</code>。用支持 ASS 的播放器打开对应视频，再加载该字幕文件。
-          <p>仅转换视频开始后的普通文字消息；移除表情后为空的消息，以及无法安排显示位置的消息会被跳过，因此输出条数可能少于原始聊天条数。</p>
-        </li>
-      </ol>
-      <div class="p">更多说明：<a href="https://github.com/Liu-Junyan/youtube-livechat-to-danmaku/blob/main/README.md">README.md</a></div>
+      <p>使用 <a href="https://github.com/Indigo128/chat-downloader">Indigo128/chat-downloader 分支</a>下载聊天记录。请选择有聊天重放的已结束直播，将 <code>VIDEO_ID</code> 替换为视频 ID：</p>
+      <pre><code>chat_downloader "https://www.youtube.com/watch?v=VIDEO_ID" --output chat.json</code></pre>
+      <p>先设置上方选项，再点击“上传JSON文件”选择 <code>chat.json</code>，即可下载 ASS 弹幕文件并在播放器中加载。</p>
+      <p>安装方法及登录验证说明见 <a href="https://github.com/Liu-Junyan/youtube-livechat-to-danmaku/blob/main/README.md">README</a>。</p>
     </div>
 
     <h3>关于</h3>
